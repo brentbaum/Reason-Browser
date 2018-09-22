@@ -33,14 +33,14 @@ let element = (tagName, attributes, children) => {
 };
 
 let rec printTree = (~level=0, node) => {
-  let str =
+  let (o, c) =
     switch node.nodeType {
-    | Element(data) => "<" ++ data.tagName ++ ">"
-    | Text(text) => text
-    | Comment(text) => "// " ++ text
+    | Element(data) => ("<" ++ data.tagName ++ ">", "</" ++ data.tagName ++ ">")
+    | Text(text) => (text, "")
+    | Comment(text) => (text, "// " ++ text)
     };
-  let levelStr = String.make(2 * level, ' ') ++ str ++ "\n";
+  let indent = String.make(2 * level, ' ');
   let childrenStr = node.children |> List.map(printTree(~level=level + 1)) |> String.concat("");
-  levelStr ++ childrenStr
+  indent ++ o ++ "\n" ++ childrenStr ++ indent ++ c ++ "\n"
 };
 /* Js.log(printTree(element("p", StringMap.empty, [text("hi")]))); */

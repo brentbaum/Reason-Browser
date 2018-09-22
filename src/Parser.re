@@ -72,23 +72,47 @@ let headSkipWhitespace = (head) =>
 let parseTagContents = (contents) => {
   let tag = Js.String.split(" ", String.trim(contents));
   Js.log(tag);
-  Node.element(tag[0], Node.StringMap.empty, [])
+  Node.element(String.sub(tag[0], 1, String.length(tag[0]) - 2), Node.StringMap.empty, [])
 };
+
+let getElementTagName = (node: Node.node) =>
+  switch node.nodeType {
+  | Node.Element({tagName}) => tagName
+  | _ => ""
+  };
 
 let rec step = (head) =>
   if (headComplete(head)) {
     []
   } else {
-    Js.log("switch");
     let (nextHead, node) =
       switch (readHead(head)) {
       | '<' =>
         /* Have to check for close without open - skip in that case */
-        Js.log("Hey");
         let tagOption = seekUntil(head, ">");
         switch tagOption {
         | None => (incHead(head), Node.comment("null"))
-        | Some((nextHead, contents)) => (nextHead, parseTagContents(contents))
+        | Some((nextHead, contents)) =>
+          let element = parseTagContents(contents);
+          let tagName = getElementTagName(element);
+          let closeStart = seekUntil(head, "</" ++ tagName);
+          switch closeStart {
+          | None => (nextHead, Node.text(contents))
+          | Some((closeStartHead, _)) =>
+            let closeEnd = seekUntil(closeStartHead, ">");
+            switch closeEnd {
+            | None => (nextHead, Node.text(contents))
+            | Some((closeEndHead, _)) =>
+              Js.log("befo");
+              let childrenContents =
+                String.sub(nextHead.body, nextHead.pos, closeStartHead.pos - nextHead.pos);
+              Js.log("afta");
+              let childHead = {pos: 0, body: childrenContents};
+              Js.log2("contents", childrenContents);
+              let elementWithChildren = {...element, children: step(childHead)};
+              (closeEndHead, elementWithChildren)
+            }
+          }
         }
       | x =>
         switch (seekUntil(head, "<")) {
