@@ -35,12 +35,12 @@ let element = (tagName, attributes, children) => {
 let rec printTree = (~level=0, node) => {
   let (o, c) =
     switch node.nodeType {
-    | Element(data) => ("<" ++ data.tagName ++ ">", "</" ++ data.tagName ++ ">")
-    | Text(text) => (text, "")
+    | Element(data) => ("<" ++ data.tagName ++ ">\n", "</" ++ data.tagName ++ ">")
+    | Text(text) => ("" ++ text, "")
     | Comment(text) => (text, "// " ++ text)
     };
   let indent = String.make(2 * level, ' ');
   let childrenStr = node.children |> List.map(printTree(~level=level + 1)) |> String.concat("");
-  indent ++ o ++ "\n" ++ childrenStr ++ indent ++ c ++ "\n"
+  indent ++ o ++ childrenStr ++ indent ++ c ++ "\n"
 };
 /* Js.log(printTree(element("p", StringMap.empty, [text("hi")]))); */

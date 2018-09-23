@@ -70,9 +70,10 @@ let headSkipWhitespace = (head) =>
   };
 
 let parseTagContents = (contents) => {
-  let tag = Js.String.split(" ", String.trim(contents));
-  Js.log(tag);
-  Node.element(String.sub(tag[0], 1, String.length(tag[0]) - 2), Node.StringMap.empty, [])
+  let innerContents = String.sub(contents, 1, String.length(contents) - 2);
+  Js.log(innerContents);
+  let tag = Js.String.split(" ", String.trim(innerContents));
+  Node.element(tag[0], Node.StringMap.empty, [])
 };
 
 let getElementTagName = (node: Node.node) =>
@@ -119,17 +120,23 @@ let rec step = (head) =>
         | None => (incHead(head), Node.text(String.make(1, x)))
         | Some((nextHead, contents)) => (
             decHead(nextHead),
-            Node.text(String.sub(contents, 0, String.length(contents) - 1))
+            Node.text(String.trim(String.sub(contents, 0, String.length(contents) - 1)))
           )
         }
       };
     /* hacky - will break for trailing whitespace*/
     let nextWithoutWhiteSpaceHead = {...nextHead, pos: headSkipWhitespace(nextHead)};
-    if (nextWithoutWhiteSpaceHead.pos + 1 == String.length(nextHead.body)) {
-      [node]
-    } else {
-      List.append([node], step(nextWithoutWhiteSpaceHead))
-    }
+    let nodeList =
+      nextWithoutWhiteSpaceHead.pos + 1 == String.length(nextHead.body) ?
+        [node] : List.append([node], step(nextWithoutWhiteSpaceHead));
+    Belt.List.keep(
+      nodeList,
+      (n) =>
+        switch n.nodeType {
+        | Node.Text(t) when String.trim(t) == "" => false
+        | _ => true
+        }
+    )
   };
 
 let head = {body: test, pos: 0};
