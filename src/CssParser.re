@@ -89,6 +89,35 @@ let parseDeclarations = (str) =>
   |> ((a) => Belt.List.keep(a, Belt.Option.isSome))
   |> List.map(Belt.Option.getExn);
 
+let get_selector_specificity = (selector) =>
+  switch selector {
+  | Simple(selector) =>
+    let a = Belt.Option.isSome(selector.id) ? 1 : 0;
+    let b = List.length(selector.classes);
+    let c = Belt.Option.isSome(selector.tagName) ? 1 : 0;
+    (a, b, c)
+  | Universal => (0, 0, 0)
+  | PseudoClass(_) => (0, 0, 0)
+  | ChildCombinator(_) => (0, 0, 1)
+  | DescentCombinator(_) => (0, 0, 1)
+  | Attribute(_) => (0, 0, 1)
+  };
+
+let sort_selectors =
+  List.stable_sort(
+    (s1, s2) => {
+      let (a1, b1, c1) = get_selector_specificity(s1);
+      let (a2, b2, c2) = get_selector_specificity(s2);
+      if (a1 - a2 != 0) {
+        a2 - a1
+      } else if (b1 - b2 != 0) {
+        b2 - b1
+      } else {
+        c2 - c1
+      }
+    }
+  );
+
 let parseNextRule = (head) =>
   switch (seekUpTo(head, "{")) {
   | None => None
@@ -99,7 +128,7 @@ let parseNextRule = (head) =>
       | None => (selHead, []) /* Replace with exception Unclosed declarations */
       | Some((dhead, declarationString)) => (dhead, parseDeclarations(declarationString))
       };
-    Some(({selectors, declarations}, incHead(declarationHead)))
+    Some(({selectors: sort_selectors(selectors), declarations}, incHead(declarationHead)))
   };
 
 let rec parse = (head) => {

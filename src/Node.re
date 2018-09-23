@@ -29,15 +29,17 @@ type nodeType =
 
 type node = {
   children: list(node),
+  specifiedValues: attrMap,
   nodeType
 };
 
-let text = (text) => {children: [], nodeType: Text(text)};
+let text = (text) => {children: [], specifiedValues: StringMap.empty, nodeType: Text(text)};
 
-let comment = (text) => {children: [], nodeType: Comment(text)};
+let comment = (text) => {children: [], specifiedValues: StringMap.empty, nodeType: Comment(text)};
 
 let element = (tagName, attributes, children) => {
   children,
+  specifiedValues: StringMap.empty,
   nodeType: Element({tagName, attributes})
 };
 

@@ -24,7 +24,7 @@ let parseTagContents = (contents) => {
   let attrMap =
     Belt.Array.sliceToEnd(tags, 1)
     |> Array.map(parseAttribute)
-    |> ((a) => Belt.Array.keep(a, ((name, _value)) => name != ""))
+    |. Belt.Array.keep(((name, _value)) => name != "")
     |> Array.fold_left(
          (map, (name, value)) => Node.StringMap.add(name, value, map),
          Node.StringMap.empty
