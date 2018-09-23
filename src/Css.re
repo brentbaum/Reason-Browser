@@ -8,13 +8,13 @@ type tag =
   | H3;
 
 type simpleSelector = {
-  tagName: option(tag),
+  tagName: option(string),
   id: option(string),
   classes: list(string)
 };
 
 type attributeSelector = {
-  tagName: option(tag),
+  tagName: option(string),
   attributeName: string,
   value: option(string)
 };
@@ -33,13 +33,15 @@ type unit =
   | Px
   | Percent;
 
+type name = string;
+
 type value =
   | Keyword(string)
   | Length(float, unit)
   | Color(string);
 
 type declaration = {
-  name: string,
+  name,
   value
 };
 

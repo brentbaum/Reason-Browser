@@ -2,8 +2,8 @@ open Parse;
 
 open Css;
 
-let test = {|
-  h1.test, .test, h3 { margin: auto; color: #cc0000; }
+let testCss = {|
+  h1, .test, h3 { margin: auto; color: #cc0000; }
   div.note { margin-bottom: 20px; padding: 10px; }
   #answer { display: none; }
 |};
@@ -44,7 +44,7 @@ let parseSimpleSelector: string => Css.selector =
       let rest = split_on_chars(['#'], selectorRest) |> Array.of_list;
       let (tagName, id: option(string)) =
         if (Array.length(rest) == 1) {
-          (validateTag(rest[0]), None)
+          (Some(rest[0]), None)
         } else if (Array.length(rest) == 2 && rest[0] == "") {
           (None, Some(rest[1]))
         } else {
@@ -108,6 +108,8 @@ let sort_selectors =
     (s1, s2) => {
       let (a1, b1, c1) = get_selector_specificity(s1);
       let (a2, b2, c2) = get_selector_specificity(s2);
+      /* Js.log(get_selector_specificity(s1)); */
+      /* Js.log(get_selector_specificity(s2)); */
       if (a1 - a2 != 0) {
         a2 - a1
       } else if (b1 - b2 != 0) {
@@ -131,14 +133,15 @@ let parseNextRule = (head) =>
     Some(({selectors: sort_selectors(selectors), declarations}, incHead(declarationHead)))
   };
 
-let rec parse = (head) => {
+let rec parseRules = (head) => {
   let ruleOption = parseNextRule(head);
   switch ruleOption {
   | None => []
-  | Some((rule, nextHead)) => List.append([rule], parse(nextHead))
+  | Some((rule, nextHead)) => List.append([rule], parseRules(nextHead))
   }
 };
 
-let head = {body: test, pos: 0};
-
-Js.log(parse(head));
+let parseCss = (str) => {
+  let head = {body: str, pos: 0};
+  parseRules(head)
+};

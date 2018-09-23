@@ -6,7 +6,17 @@ module StringMap =
     }
   );
 
+module StyleMap =
+  Map.Make(
+    {
+      type t = Css.name;
+      let compare = compare;
+    }
+  );
+
 type attrMap = StringMap.t(string);
+
+type styleMap = StyleMap.t(Css.value);
 
 type tag =
   | Div
@@ -29,17 +39,17 @@ type nodeType =
 
 type node = {
   children: list(node),
-  specifiedValues: attrMap,
+  specifiedValues: StyleMap.t(Css.value),
   nodeType
 };
 
-let text = (text) => {children: [], specifiedValues: StringMap.empty, nodeType: Text(text)};
+let text = (text) => {children: [], specifiedValues: StyleMap.empty, nodeType: Text(text)};
 
-let comment = (text) => {children: [], specifiedValues: StringMap.empty, nodeType: Comment(text)};
+let comment = (text) => {children: [], specifiedValues: StyleMap.empty, nodeType: Comment(text)};
 
 let element = (tagName, attributes, children) => {
   children,
-  specifiedValues: StringMap.empty,
+  specifiedValues: StyleMap.empty,
   nodeType: Element({tagName, attributes})
 };
 
@@ -50,11 +60,22 @@ let getAttrStr = (elementData) =>
     ""
   );
 
+let empty = StringMap.empty;
+
+let getStyleString = (node) =>
+  switch (StyleMap.cardinal(node.specifiedValues)) {
+  | 0 => ""
+  | _ =>
+    let s = ref("");
+    StyleMap.iter((key, _) => s := key, node.specifiedValues);
+    " style=" ++ s^
+  };
+
 let rec printTree = (~level=0, node) => {
   let (o, c) =
     switch node.nodeType {
     | Element(data) => (
-        "<" ++ data.tagName ++ getAttrStr(data) ++ ">\n",
+        "<" ++ data.tagName ++ getAttrStr(data) ++ getStyleString(node) ++ ">\n",
         "</" ++ data.tagName ++ ">"
       )
     | Text(text) => ("" ++ text, "")

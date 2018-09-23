@@ -1,10 +1,10 @@
 open Parse;
 
-let test = {|<html>
+let testHtml = {|<html>
     <body>
         <h1>Title</h1>
         <div id="main" class="test">
-            <p>Hello <em>world</em>!</p>
+            <p>Hello <em id="answer">world</em>!</p>
         </div>
     </body>
 </html>|};
@@ -12,7 +12,7 @@ let test = {|<html>
 let parseAttribute = (tagStr) => {
   let parts = Js.String.split("=", tagStr);
   if (Array.length(parts) == 2) {
-    (parts[0], parts[1])
+    (parts[0], String.sub(parts[1], 1, String.length(parts[1]) - 2))
   } else {
     ("", "")
   }
@@ -92,19 +92,11 @@ let rec step = (head) =>
     )
   };
 
-let head = {body: test, pos: 0};
-
-let nodes = step(head);
+let parseHtml = (str) => {
+  let head = {body: str, pos: 0};
+  Node.element("Root", Node.StringMap.empty, step(head))
+};
 
 Js.log("Results\n\n\n\n");
 
-Js.log(Node.printTree(Node.element("Root", Node.StringMap.empty, nodes)));
-/*
-
-
- seekUntil = (readHead, char) => (readHead, string)
-    1. inc until encounter <
-    2. Get contents of tag by seekUntil(">"). tagName = String.split(contents, " ")[0]. attrs = parseAttrs([1])
-    3. Child text is seekUntil("<" ++ tagName)
-    4. Iterate on child
-  */
+Js.log(Node.printTree(parseHtml(testHtml)));
