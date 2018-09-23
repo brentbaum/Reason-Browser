@@ -1,3 +1,5 @@
+open Parse;
+
 let test = {|<html>
     <body>
         <h1>Title</h1>
@@ -6,67 +8,6 @@ let test = {|<html>
         </div>
     </body>
 </html>|};
-
-type parseHead = {
-  pos: int,
-  body: string
-};
-
-let headComplete = (head) => head.pos == String.length(head.body);
-
-let incHead = (head) => {...head, pos: head.pos + 1};
-
-let decHead = (head) => {...head, pos: head.pos - 1};
-
-let readHead = (head) => head.body.[head.pos];
-
-let readHeadRest = (head) => String.sub(head.body, head.pos, String.length(head.body) - head.pos);
-
-let rec toCharList = (ch) =>
-  switch ch {
-  | "" => []
-  | ch => [ch.[0], ...toCharList(String.sub(ch, 1, String.length(ch) - 1))]
-  };
-
-let headPatternEq = (str, pattern) => {
-  /* Js.log3("eq?", str, pattern); */
-  let pairs = Belt.List.zip(toCharList(str), toCharList(pattern));
-  ! Belt.List.some(pairs, ((c1, c2)) => c1 != c2)
-};
-
-let rec seekUntilHelper = (head, pattern) =>
-  if (headComplete(head)) {
-    None
-  } else if (headPatternEq(readHeadRest(head), pattern)) {
-    Some(head.pos)
-  } else {
-    let res = seekUntilHelper(incHead(head), pattern);
-    switch res {
-    | None => None
-    | Some(i) => Some(i)
-    }
-  };
-
-let seekUntil = (head, pattern) => {
-  let indexOption = seekUntilHelper(head, pattern);
-  switch indexOption {
-  | None => None
-  | Some(pos) =>
-    let nextHead = {...head, pos: pos + 1};
-    Some((nextHead, String.sub(nextHead.body, head.pos, nextHead.pos - head.pos)))
-  }
-};
-
-let headSkipWhitespace = (head) =>
-  if (String.length(head.body) == head.pos) {
-    head.pos
-  } else {
-    let p = ref(head.pos);
-    while (Belt.List.has([' ', '\n', '\t', '\r'], head.body.[p^], (a, b) => a == b)) {
-      p := p^ + 1
-    };
-    p^
-  };
 
 let parseAttribute = (tagStr) => {
   let parts = Js.String.split("=", tagStr);
@@ -98,7 +39,7 @@ let getElementTagName = (node: Node.node) =>
   };
 
 let rec step = (head) =>
-  if (headComplete(head)) {
+  if (Parse.headComplete(head)) {
     []
   } else {
     let (nextHead, node) =

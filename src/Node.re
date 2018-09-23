@@ -8,6 +8,15 @@ module StringMap =
 
 type attrMap = StringMap.t(string);
 
+type tag =
+  | Div
+  | P
+  | Html
+  | Body
+  | H1
+  | H2
+  | H3;
+
 type elementData = {
   tagName: string,
   attributes: attrMap
