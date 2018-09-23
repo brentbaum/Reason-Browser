@@ -41,7 +41,6 @@ let rec seekUntilHelper = (head, pattern) =>
     Some(head.pos)
   } else {
     let res = seekUntilHelper(incHead(head), pattern);
-    Js.log(res);
     switch res {
     | None => None
     | Some(i) => Some(i)
@@ -69,11 +68,27 @@ let headSkipWhitespace = (head) =>
     p^
   };
 
+let parseAttribute = (tagStr) => {
+  let parts = Js.String.split("=", tagStr);
+  if (Array.length(parts) == 2) {
+    (parts[0], parts[1])
+  } else {
+    ("", "")
+  }
+};
+
 let parseTagContents = (contents) => {
   let innerContents = String.sub(contents, 1, String.length(contents) - 2);
-  Js.log(innerContents);
-  let tag = Js.String.split(" ", String.trim(innerContents));
-  Node.element(tag[0], Node.StringMap.empty, [])
+  let tags = Js.String.split(" ", String.trim(innerContents));
+  let attrMap =
+    Belt.Array.sliceToEnd(tags, 1)
+    |> Array.map(parseAttribute)
+    |> ((a) => Belt.Array.keep(a, ((name, _value)) => name != ""))
+    |> Array.fold_left(
+         (map, (name, value)) => Node.StringMap.add(name, value, map),
+         Node.StringMap.empty
+       );
+  Node.element(tags[0], attrMap, [])
 };
 
 let getElementTagName = (node: Node.node) =>
@@ -104,12 +119,9 @@ let rec step = (head) =>
             switch closeEnd {
             | None => (nextHead, Node.text(contents))
             | Some((closeEndHead, _)) =>
-              Js.log("befo");
               let childrenContents =
                 String.sub(nextHead.body, nextHead.pos, closeStartHead.pos - nextHead.pos);
-              Js.log("afta");
               let childHead = {pos: 0, body: childrenContents};
-              Js.log2("contents", childrenContents);
               let elementWithChildren = {...element, children: step(childHead)};
               (closeEndHead, elementWithChildren)
             }

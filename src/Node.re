@@ -32,10 +32,20 @@ let element = (tagName, attributes, children) => {
   nodeType: Element({tagName, attributes})
 };
 
+let getAttrStr = (elementData) =>
+  StringMap.fold(
+    (name, value, acc) => acc ++ " " ++ name ++ "=" ++ value,
+    elementData.attributes,
+    ""
+  );
+
 let rec printTree = (~level=0, node) => {
   let (o, c) =
     switch node.nodeType {
-    | Element(data) => ("<" ++ data.tagName ++ ">\n", "</" ++ data.tagName ++ ">")
+    | Element(data) => (
+        "<" ++ data.tagName ++ getAttrStr(data) ++ ">\n",
+        "</" ++ data.tagName ++ ">"
+      )
     | Text(text) => ("" ++ text, "")
     | Comment(text) => (text, "// " ++ text)
     };
