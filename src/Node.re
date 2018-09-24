@@ -66,9 +66,11 @@ let getStyleString = (node) =>
   switch (StyleMap.cardinal(node.specifiedValues)) {
   | 0 => ""
   | _ =>
-    let s = ref("");
-    StyleMap.iter((key, _) => s := key, node.specifiedValues);
-    " style=" ++ s^
+    let s =
+      StyleMap.fold((key, value, list) => List.append(list, [key]), node.specifiedValues, [])
+      |> Array.of_list
+      |> Js.Array.joinWith(",");
+    " style=" ++ s
   };
 
 let rec printTree = (~level=0, node) => {

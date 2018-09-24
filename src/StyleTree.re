@@ -6,12 +6,7 @@ let node_has_class = (node, className) =>
   } else {
     StringMap.find("class", node.attributes)
     |> CssParser.split_on_chars([' '])
-    |. Belt.List.some(
-         (s) => {
-           Js.log3("==", s, className);
-           className == s
-         }
-       )
+    |. Belt.List.some((s) => className == s)
   };
 
 let selector_match = (node, selector) =>
@@ -33,11 +28,6 @@ let selector_match = (node, selector) =>
       | Some(id) =>
         StringMap.mem("id", node.attributes) && id == StringMap.find("id", node.attributes)
       };
-    Js.log2("Id", simpleSelector.id);
-    Js.log2("Class", simpleSelector.classes);
-    Js.log2("Tag", simpleSelector.tagName);
-    Js.log(node.attributes);
-    Js.log3(tagMatch, classMatch, idMatch);
     tagMatch && classMatch && idMatch
   | Universal => true
   | Attribute(_attributeSelector) => false
@@ -67,6 +57,8 @@ let rec styleNode = (rules, node) => {
       StyleMap.empty,
       declarations
     );
+  Js.log("hi");
+  Js.log(style);
   {...node, specifiedValues: style, children: List.map(styleNode(rules), node.children)}
 };
 
