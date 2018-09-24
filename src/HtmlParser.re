@@ -3,13 +3,14 @@ open Parse;
 let testHtml = {|<html>
     <body>
         <h1>Title</h1>
-        <div id="main" class="test">
+        <div id="main" class="test" style="display:flex">
             <p>Hello <em id="answer">world</em>!</p>
         </div>
     </body>
 </html>|};
 
 let parseAttribute = (tagStr) => {
+  Js.log(tagStr);
   let parts = Js.String.split("=", tagStr);
   if (Array.length(parts) == 2) {
     (parts[0], String.sub(parts[1], 1, String.length(parts[1]) - 2))
@@ -18,6 +19,7 @@ let parseAttribute = (tagStr) => {
   }
 };
 
+/* TODO: spliting by space breaks display: flex, so we have to do display:flex */
 let parseTagContents = (contents) => {
   let innerContents = String.sub(contents, 1, String.length(contents) - 2);
   let tags = Js.String.split(" ", String.trim(innerContents));

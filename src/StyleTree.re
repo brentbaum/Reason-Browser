@@ -51,14 +51,25 @@ let rec styleNode = (rules, node) => {
   let matching_rules = get_matching_rules(rules, node);
   let declarations =
     matching_rules |> List.map((rule: Css.rule) => rule.declarations) |> List.concat;
+  let inlineDeclarations =
+    switch node.nodeType {
+    | Element(elementData) =>
+      Js.log("inline found");
+      if (StringMap.mem("style", elementData.attributes)) {
+        Js.log("Style really found");
+        Js.log(StringMap.find("style", elementData.attributes));
+        CssParser.parseDeclarations(StringMap.find("style", elementData.attributes))
+      } else {
+        []
+      }
+    | _ => []
+    };
   let style =
     List.fold_left(
       (map, dec: Css.declaration) => StyleMap.add(dec.name, dec.value, map),
       StyleMap.empty,
-      declarations
+      List.append(declarations, inlineDeclarations)
     );
-  Js.log("hi");
-  Js.log(style);
   {...node, specifiedValues: style, children: List.map(styleNode(rules), node.children)}
 };
 
