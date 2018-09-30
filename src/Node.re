@@ -53,6 +53,13 @@ let element = (tagName, attributes, children) => {
   nodeType: Element({tagName, attributes})
 };
 
+let getTagName = (node) =>
+  switch node.nodeType {
+  | Element(elementData) => elementData.tagName
+  | Text(_) => "text"
+  | Comment(_) => "comment"
+  };
+
 let getAttrStr = (elementData) =>
   StringMap.fold(
     (name, value, acc) => acc ++ " " ++ name ++ "=" ++ value,
