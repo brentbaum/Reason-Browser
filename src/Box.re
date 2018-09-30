@@ -48,7 +48,10 @@ let getBoxType = (node) => {
     if (StyleMap.mem(display, node.specifiedValues)) {
       StyleMap.find(display, node.specifiedValues)
     } else {
-      Keyword("inline")
+      switch node.nodeType {
+      | Text(_) => Keyword("inline")
+      | _ => Keyword("block")
+      }
     };
   if (displayType == Keyword("none")) {
     None
@@ -97,7 +100,6 @@ let groupChildren = (nodes) => {
            switch node.boxType {
            | InlineNode(_) => {kids: acc.kids, container: List.append(acc.container, [node])}
            | _ => {container: [], kids: List.append(addAnonymous(acc), [node])}
-           | _ => acc
            },
          {container: [], kids: []}
        );
@@ -112,4 +114,4 @@ let rec getLayoutTree = (node) => {
   {boxType, dimensions: defaultDimensions, children: groupedChildren}
 };
 
-Js.log(getLayoutTree(StyleTree.styledNode));
+let layoutTree = getLayoutTree(StyleTree.styledNode);

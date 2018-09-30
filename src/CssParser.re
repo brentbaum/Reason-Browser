@@ -4,7 +4,7 @@ open Css;
 
 let testCss = {|
   h1, .test, h3 { margin: auto; color: #cc0000; }
-  div.note { margin-bottom: 20px; padding: 10px; }
+  .note { margin-bottom: 20px; padding: 10px; width: 20px; background-color: "#f00"; }
   #answer { display: none; }
 |};
 

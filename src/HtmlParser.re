@@ -6,6 +6,7 @@ let testHtml = {|<html>
         <div id="main" class="test" style="display:flex">
             <p>Hello <em id="answer">world</em>!</p>
         </div>
+        <div class="note">It's me</div>
     </body>
 </html>|};
 

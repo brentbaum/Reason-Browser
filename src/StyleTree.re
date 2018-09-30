@@ -75,4 +75,5 @@ let rules = CssParser.parseCss(CssParser.testCss);
 let node = HtmlParser.parseHtml(HtmlParser.testHtml);
 
 let styledNode = getStyleTree(rules, node);
-/* Js.log(printTree(styledNode)); */
+
+Js.log(printTree(styledNode));
