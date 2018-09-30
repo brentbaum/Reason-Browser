@@ -36,7 +36,7 @@ let validateTag = (tag) =>
 let parseSimpleSelector: string => Css.selector =
   (str) => {
     let classParts = str |> split_on_chars(['.']) |> Array.of_list;
-    let classes = Belt.Array.sliceToEnd(classParts, 1);
+    let classes = Belt.Array.slice(classParts, 1, Array.length(classParts));
     let selectorRest = classParts[0];
     if (Array.length(classParts) > 0 && classParts[0] == "") {
       Simple({tagName: None, id: None, classes: Array.to_list(classes)})

@@ -113,5 +113,4 @@ let rec getLayoutTree = (node) => {
   let groupedChildren = groupChildren(children);
   {boxType, dimensions: defaultDimensions, children: groupedChildren}
 };
-
-let layoutTree = getLayoutTree(StyleTree.styledNode);
+/* let layoutTree = getLayoutTree(StyleTree.styledNode); */

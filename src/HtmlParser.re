@@ -25,7 +25,7 @@ let parseTagContents = (contents) => {
   let innerContents = String.sub(contents, 1, String.length(contents) - 2);
   let tags = Js.String.split(" ", String.trim(innerContents));
   let attrMap =
-    Belt.Array.sliceToEnd(tags, 1)
+    Belt.Array.slice(tags, 1, Array.length(tags))
     |> Array.map(parseAttribute)
     |. Belt.Array.keep(((name, _value)) => name != "")
     |> Array.fold_left(
@@ -99,7 +99,5 @@ let parseHtml = (str) => {
   let head = {body: str, pos: 0};
   Node.element("Root", Node.StringMap.empty, step(head))
 };
-
-Js.log("Results\n\n\n\n");
-
-Js.log(Node.printTree(parseHtml(testHtml)));
+/* Js.log("Results\n\n\n\n"); */
+/* Js.log(Node.printTree(parseHtml(testHtml))); */

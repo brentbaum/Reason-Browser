@@ -211,7 +211,5 @@ and layoutBlock = (containing, block) =>
   |> calculateBlockPosition(containing)
   |> layoutChildren
   |> calculateBlockHeight(containing);
-
-let boxLayoutTree = getBoxLayout(Box.defaultDimensions, Box.layoutTree);
-
-Js.log(layoutTree);
+/* let boxLayoutTree = getBoxLayout(Box.defaultDimensions, Box.layoutTree); */
+/* Js.log(layoutTree); */
