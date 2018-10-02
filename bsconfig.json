@@ -10,7 +10,7 @@
     "in-source": true
   },
   "suffix": ".bs.js",
-  "bs-dependencies": ["Reprocessing", "rationale"],
+  "bs-dependencies": ["reprocessing", "rationale"],
   "warnings": {
     "error": "+101"
   },
